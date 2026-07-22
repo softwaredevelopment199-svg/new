@@ -1,78 +1,43 @@
-
-// Auth Types
-export interface User {
-  id: string
-  email: string
-  firstName: string
-  lastName: string
-  role: 'SUPER_ADMIN' | 'MERCHANT_ADMIN' | 'DISPATCHER' | 'RIDER' | 'CUSTOMER'
-  merchantId?: string
-  permissions: string[]
-}
-
-export interface AuthResponse {
-  token: string
-  refreshToken: string
-  user: User
-}
-
-// Order Types
 export interface Order {
   id: string
   orderNumber: string
+  status: 'pending' | 'picked' | 'in_transit' | 'delivered' | 'cancelled'
   merchantId: string
-  customerId: string
   riderId?: string
-  status: 'PENDING' | 'ASSIGNED' | 'ACCEPTED' | 'PICKED_UP' | 'IN_TRANSIT' | 'ARRIVED' | 'DELIVERED' | 'CANCELLED'
-  deliveryAddress: string
-  recipientName: string
-  recipientPhone: string
-  totalAmount: number
-  paymentMethod: string
-  paymentStatus: string
+  pickupLocation: string
+  deliveryLocation: string
+  amount: number
   createdAt: string
-  estimatedDeliveryTime?: string
-  deliveredAt?: string
+  updatedAt: string
 }
 
-// Rider Types
 export interface Rider {
   id: string
-  userId: string
-  phoneNumber: string
-  vehicleType: 'MOTORCYCLE' | 'CAR' | 'TRUCK'
-  status: 'OFFLINE' | 'ONLINE' | 'BUSY' | 'SUSPENDED'
-  currentLatitude?: number
-  currentLongitude?: number
-  averageRating: number
-  totalOrdersCompleted: number
-  walletBalance: number
+  name: string
+  email: string
+  phone: string
+  status: 'active' | 'inactive' | 'on_leave'
+  rating: number
+  totalDeliveries: number
+  createdAt: string
 }
 
-// Merchant Types
 export interface Merchant {
   id: string
   businessName: string
   email: string
-  phoneNumber: string
-  city: string
-  commissionRate: number
-  isActive: boolean
+  phone: string
+  location: string
+  status: 'active' | 'inactive'
+  totalOrders: number
   createdAt: string
 }
 
-// API Response Types
-export interface ApiResponse<T> {
-  status: string
-  data: T
-  message?: string
-  error?: string
-}
-
-export interface PaginatedResponse<T> {
-  items: T[]
-  total: number
-  page: number
-  pageSize: number
-  hasMore: boolean
+export interface DashboardStats {
+  totalOrders: number
+  activeOrders: number
+  totalDelivered: number
+  totalRevenue: number
+  activeRiders: number
+  activeMerchants: number
 }

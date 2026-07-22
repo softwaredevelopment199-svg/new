@@ -1,24 +1,25 @@
-
 import { createTheme } from '@mui/material/styles'
 
 export const theme = createTheme({
   palette: {
     primary: {
-      main: '#FF1493', // Easybox pink
-      light: '#FF69B4',
-      dark: '#C71585',
+      main: '#863bff',
+      light: '#9d5cff',
+      dark: '#6a2db3',
     },
     secondary: {
-      main: '#1976d2',
+      main: '#47bfff',
+      light: '#6ecbff',
+      dark: '#3399cc',
     },
     success: {
-      main: '#2e7d32',
+      main: '#00c853',
     },
     warning: {
-      main: '#f57c00',
+      main: '#ffa500',
     },
     error: {
-      main: '#d32f2f',
+      main: '#f44336',
     },
     background: {
       default: '#f5f5f5',
@@ -26,13 +27,29 @@ export const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Segoe UI", "Roboto", "Oxygen", "Ubuntu", sans-serif',
     h1: {
       fontSize: '2.5rem',
-      fontWeight: 600,
+      fontWeight: 700,
     },
     h2: {
       fontSize: '2rem',
+      fontWeight: 700,
+    },
+    h3: {
+      fontSize: '1.75rem',
+      fontWeight: 600,
+    },
+    h4: {
+      fontSize: '1.5rem',
+      fontWeight: 600,
+    },
+    h5: {
+      fontSize: '1.25rem',
+      fontWeight: 600,
+    },
+    h6: {
+      fontSize: '1rem',
       fontWeight: 600,
     },
   },
@@ -41,7 +58,16 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          fontWeight: 600,
+          fontWeight: 500,
+          borderRadius: '8px',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: '12px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
         },
       },
     },

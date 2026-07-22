@@ -1,68 +1,66 @@
-
-import { useState } from 'react'
 import {
   Box,
   Card,
-  CardContent,
   TextField,
   Button,
   Typography,
+  Container,
   Alert,
-  CircularProgress,
 } from '@mui/material'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { apiClient } from '@/services/api'
-import { API_ENDPOINTS } from '@/utils/constants'
-import { AuthResponse } from '@/types'
 
 export default function Login() {
+  const navigate = useNavigate()
+  const login = useAuthStore((state) => state.login)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
-  const { login } = useAuthStore()
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setIsLoading(true)
+    setLoading(true)
 
     try {
-      const response = await apiClient.post<AuthResponse>(
-        API_ENDPOINTS.LOGIN,
-        { email, password }
-      )
-
-      login(response.user, response.token)
+      await login(email, password)
       navigate('/dashboard')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed')
+    } catch (err) {
+      setError('Invalid email or password')
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   return (
     <Box
       sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
         minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: '#f5f5f5',
       }}
     >
-      <Card sx={{ width: 400 }}>
-        <CardContent>
-          <Typography variant="h4" sx={{ mb: 3, textAlign: 'center', color: '#FF1493' }}>
+      <Container maxWidth="sm">
+        <Card sx={{ p: 4 }}>
+          <Typography variant="h4" align="center" gutterBottom fontWeight={700}>
             Easybox Admin
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            color="textSecondary"
+            sx={{ mb: 3 }}
+          >
+            Sign in to your account
           </Typography>
 
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
               label="Email"
@@ -72,7 +70,6 @@ export default function Login() {
               margin="normal"
               required
             />
-
             <TextField
               fullWidth
               label="Password"
@@ -82,23 +79,18 @@ export default function Login() {
               margin="normal"
               required
             />
-
             <Button
               fullWidth
               variant="contained"
-              sx={{ mt: 3, backgroundColor: '#FF1493' }}
-              disabled={isLoading}
+              sx={{ mt: 3, mb: 2 }}
+              disabled={loading}
               type="submit"
             >
-              {isLoading ? <CircularProgress size={24} /> : 'Login'}
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-
-          <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: '#666' }}>
-            Demo: Use your backend credentials
-          </Typography>
-        </CardContent>
-      </Card>
+        </Card>
+      </Container>
     </Box>
   )
 }

@@ -1,131 +1,48 @@
-import { useState, useEffect } from 'react'
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  Button,
-  Typography,
-  CircularProgress,
-} from '@mui/material'
-
-interface Order {
-  id: string
-  orderNumber: string
-  recipientName: string
-  deliveryAddress: string
-  totalAmount: number
-  status: string
-}
-
-type ChipColor = 'default' | 'primary' | 'secondary' | 'error' | 'warning' | 'success' | 'info'
-
-const statusColors: Record<string, ChipColor> = {
-  PENDING: 'warning',
-  ASSIGNED: 'primary',
-  PICKED_UP: 'primary',
-  IN_TRANSIT: 'secondary',
-  ARRIVED: 'info',
-  DELIVERED: 'success',
-  CANCELLED: 'error',
-}
-
-const mockOrders: Order[] = [
-  {
-    id: '1',
-    orderNumber: 'ORD-001',
-    recipientName: 'John Kimani',
-    deliveryAddress: 'Westlands, Nairobi',
-    totalAmount: 1500,
-    status: 'PENDING',
-  },
-  {
-    id: '2',
-    orderNumber: 'ORD-002',
-    recipientName: 'Jane Mwangi',
-    deliveryAddress: 'Kilimani, Nairobi',
-    totalAmount: 2200,
-    status: 'DELIVERED',
-  },
-]
+import { Box, Button, Typography } from '@mui/material'
+import { useQuery } from '@tanstack/react-query'
+import { ordersAPI } from '@/api/orders'
+import DataTable from '@/components/common/DataTable'
+import Loading from '@/components/common/Loading'
+import EmptyState from '@/components/common/EmptyState'
+import { Order } from '@/types'
 
 export default function Orders() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { data: orders, isLoading } = useQuery({
+    queryKey: ['orders'],
+    queryFn: async () => {
+      const response = await ordersAPI.getAll()
+      return response.data
+    },
+  })
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        // Mock data
-        setOrders(mockOrders)
-      } catch (err) {
-        console.error('Failed to fetch orders:', err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  if (isLoading) return <Loading />
 
-    fetchOrders()
-  }, [])
+  const columns = [
+    { id: 'orderNumber' as const, label: 'Order Number' },
+    { id: 'status' as const, label: 'Status' },
+    { id: 'amount' as const, label: 'Amount' },
+    { id: 'createdAt' as const, label: 'Created At' },
+  ]
 
-  if (isLoading) {
-    return <CircularProgress />
+  if (!orders || orders.length === 0) {
+    return (
+      <EmptyState
+        title="No orders found"
+        description="Create your first order to get started"
+        actionLabel="Create Order"
+      />
+    )
   }
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h4" fontWeight={700}>
           Orders
         </Typography>
-        <Button variant="contained" sx={{ backgroundColor: '#FF1493' }}>
-          Create Order
-        </Button>
+        <Button variant="contained">Create Order</Button>
       </Box>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Delivery Address</TableCell>
-              <TableCell>Amount (KSh)</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell sx={{ fontWeight: 'bold' }}>
-                  {order.orderNumber}
-                </TableCell>
-                <TableCell>{order.recipientName}</TableCell>
-                <TableCell>{order.deliveryAddress}</TableCell>
-                <TableCell>{order.totalAmount.toLocaleString()}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={order.status}
-                    color={statusColors[order.status] || 'default'}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button size="small" variant="outlined">
-                    View
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <DataTable columns={columns} rows={orders} rowKey="id" />
     </Box>
   )
 }

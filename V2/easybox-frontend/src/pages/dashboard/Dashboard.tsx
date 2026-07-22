@@ -1,118 +1,67 @@
-import { useState, useEffect } from 'react'
-import { Box, Card, CardContent, Typography, CircularProgress, Alert, Grid } from '@mui/material'
-import { LocalShipping, Person, TrendingUp } from '@mui/icons-material'
-import type { ReactNode } from 'react'
-
-interface KPI {
-  ordersToday: number
-  deliveredToday: number
-  activeRiders: number
-  revenue: number
-}
-
-interface KPICardProps {
-  icon: ReactNode
-  label: string
-  value: number | string
-  unit?: string
-}
-
-function KPICard({ icon, label, value, unit }: KPICardProps) {
-  return (
-    <Card>
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box sx={{ color: '#FF1493' }}>
-            {icon}
-          </Box>
-          <Box>
-            <Typography color="textSecondary" gutterBottom>
-              {label}
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-              {value} {unit}
-            </Typography>
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
-  )
-}
+import { Box, Grid, Card, CardContent, Typography } from '@mui/material'
+import { useQuery } from '@tanstack/react-query'
+import { dashboardAPI } from '@/api/dashboard'
+import Loading from '@/components/common/Loading'
 
 export default function Dashboard() {
-  const [kpis, setKpis] = useState<KPI | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: async () => {
+      const response = await dashboardAPI.getStats()
+      return response.data
+    },
+  })
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        // Mock data - replace with actual API call
-        setKpis({
-          ordersToday: 1250,
-          deliveredToday: 1030,
-          activeRiders: 76,
-          revenue: 625400,
-        })
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard')
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  if (isLoading) return <Loading />
 
-    fetchDashboard()
-  }, [])
-
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
-    )
-  }
+  const statCards = [
+    {
+      title: 'Total Orders',
+      value: stats?.totalOrders || 0,
+      color: '#863bff',
+    },
+    {
+      title: 'Active Orders',
+      value: stats?.activeOrders || 0,
+      color: '#47bfff',
+    },
+    {
+      title: 'Delivered',
+      value: stats?.totalDelivered || 0,
+      color: '#00c853',
+    },
+    {
+      title: 'Revenue',
+      value: `KES ${stats?.totalRevenue || 0}`,
+      color: '#ffa500',
+    },
+  ]
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>
+      <Typography variant="h4" fontWeight={700} mb={3}>
         Dashboard
       </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-      {kpis && (
-        <Grid container spacing={3}>
-          <Grid xs={12} sm={6} md={3}>
-            <KPICard
-              icon={<LocalShipping sx={{ fontSize: 40 }} />}
-              label="Orders Today"
-              value={kpis.ordersToday}
-            />
+      <Grid container spacing={3}>
+        {statCards.map((card) => (
+          <Grid item xs={12} sm={6} md={3} key={card.title}>
+            <Card>
+              <CardContent>
+                <Typography color="textSecondary" gutterBottom>
+                  {card.title}
+                </Typography>
+                <Typography
+                  variant="h5"
+                  sx={{ color: card.color, fontWeight: 700 }}
+                >
+                  {card.value}
+                </Typography>
+              </CardContent>
+            </Card>
           </Grid>
-          <Grid xs={12} sm={6} md={3}>
-            <KPICard
-              icon={<LocalShipping sx={{ fontSize: 40 }} />}
-              label="Delivered Today"
-              value={kpis.deliveredToday}
-            />
-          </Grid>
-          <Grid xs={12} sm={6} md={3}>
-            <KPICard
-              icon={<Person sx={{ fontSize: 40 }} />}
-              label="Active Riders"
-              value={kpis.activeRiders}
-            />
-          </Grid>
-          <Grid xs={12} sm={6} md={3}>
-            <KPICard
-              icon={<TrendingUp sx={{ fontSize: 40 }} />}
-              label="Revenue"
-              value={kpis.revenue}
-              unit="KSh"
-            />
-          </Grid>
-        </Grid>
-      )}
+        ))}
+      </Grid>
     </Box>
   )
 }
