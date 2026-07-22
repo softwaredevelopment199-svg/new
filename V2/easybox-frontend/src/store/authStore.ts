@@ -1,10 +1,11 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, PersistStorage } from 'zustand/middleware'
 
 interface User {
   id: string
   email: string
   name: string
+  firstName?: string
   role: string
 }
 
@@ -18,7 +19,7 @@ interface AuthStore {
   setToken: (token: string) => void
 }
 
-export const useAuthStore = create<AuthStore>(
+export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
       user: null,
