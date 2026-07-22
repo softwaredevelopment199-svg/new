@@ -16,18 +16,20 @@ export default function EmptyState({
 }: EmptyStateProps) {
   return (
     <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      py={6}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 6,
+      }}
     >
       <InboxIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
       <Typography variant="h6" gutterBottom>
         {title}
       </Typography>
       {description && (
-        <Typography color="textSecondary" paragraph>
+        <Typography variant="body2" color="textSecondary">
           {description}
         </Typography>
       )}
